@@ -19,18 +19,7 @@ module Rack
       #   end
       #
       attr_accessor :env
-
-      # If used completely standalone, you can assign the requested media types
-      # directly.
-      #
-      # ===== Example
-      #
-      #   RespondTo.media_types = ['application/xml']
-      #
-      attr_accessor :media_types
-      alias :mime_types= :media_types=
-      alias :mime_types  :media_types
-
+      
       # Contains the media type that was responded to. Set after the respond_to
       # block is called.
       #
@@ -57,12 +46,15 @@ module Rack
       #   RespondTo::MediaType('htm')  #=> 'text/html'
       #
       def MediaType(format)
+        return format if format == 'any'
         Rack::Mime.mime_type(format.sub(/^\./,'').insert(0,'.'))
       end
       alias :MimeType :MediaType
 
       # Requested media types, in preferencial order
-      #
+      # If used completely standalone, you can assign the requested media types
+      # directly.
+      # 
       # ===== Examples
       #
       #   RespondTo.env['HTTP_ACCEPT'] #=> 'text/html,application/xml'
@@ -72,8 +64,12 @@ module Rack
       #   RespondTo.media_types        #=> ['application/xml', 'application/json', 'text/html']
       #
       def media_types
-        @media_types || accept_list
+        (@media_types || accept_list ) + ['any'] 
       end
+
+      attr_writer :media_types
+      alias :mime_types  :media_types
+      alias :mime_types= :media_types=
 
       private
         def accept_list
