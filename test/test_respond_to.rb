@@ -22,8 +22,8 @@ class TestRespondTo < MiniTest::Unit::TestCase
 
   test "media types accessor" do
     Rack::RespondTo.media_types = %w( application/xml )
-    assert_equal %w( application/xml any ), Rack::RespondTo.media_types
-    assert_equal %w( application/xml any ), Rack::RespondTo.mime_types  #alias
+    assert_equal %W( application/xml #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.media_types
+    assert_equal %W( application/xml #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.mime_types  #alias
   end
 
   test "selected media type reader" do
@@ -48,7 +48,7 @@ class TestRespondTo < MiniTest::Unit::TestCase
   test "explicitly specified media types take precedence over header's" do
     Rack::RespondTo.env = {'HTTP_ACCEPT' => 'text/html'}
     Rack::RespondTo.media_types = %w( text/plain )
-    assert_equal %w( text/plain any ), Rack::RespondTo.media_types
+    assert_equal %W( text/plain #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.media_types
   end
 
   ## respond_to
@@ -195,5 +195,18 @@ class TestRespondTo < MiniTest::Unit::TestCase
     end
 
     assert_equal 'success', body
+    assert_equal Rack::RespondTo::DefaultAnyTrueMimeType, Rack::RespondTo.selected_media_type
+  end
+
+  test "any mimetype setting for any mime type option in respond_to mime" do
+    Rack::RespondTo.media_types = %w( text/html )
+
+    body = App.respond_to(:default_mime_type => 'application/json') do |format|
+      format.json { 'json' }
+      format.any { 'success' }
+    end
+
+    assert_equal 'success', body
+    assert_equal 'application/json', Rack::RespondTo.selected_media_type
   end
 end
