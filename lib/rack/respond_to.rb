@@ -156,12 +156,9 @@ module Rack
       def respond_to(options = {})
         format = Format.new
         yield format
-        type, handler = Helpers.match(RespondTo.media_types, format)
+        type, handler = Helpers.match(RespondTo.media_types, format, options)
         RespondTo.selected_media_type = type
-        unless type 
-          type, handler = Helpers.get_default(format)
-          RespondTo.selected_media_type = options[:default_mime_type] || DefaultAnyTrueMimeType if type
-        end
+
         handler.nil? ? nil : handler.call
       end
     end
@@ -171,7 +168,7 @@ module Rack
       extend self
 
       # TODO refactor
-      def match(media_types, format)
+      def match(media_types, format, options)
         selected = []
         accepted_types = media_types.map {|type| Regexp.escape(type).gsub(/\\\*/,'.*') }
         accepted_types.each do |at|
@@ -180,14 +177,15 @@ module Rack
           end
           break unless selected.empty?
         end
-        selected
+        (selected.empty?) ? get_default(format,options[:default_mime_type]) : selected
       end
 
-      def get_default(format)
+      def get_default(format,default_type = nil)
+        selected = []
         format.each do |ht, handler|
-          return [ht, handler] if ht == AnyMimeType
+          selected = [default_type || DefaultAnyTrueMimeType, handler] and break if ht == AnyMimeType
         end
-        nil
+        selected
       end
     end
 
