@@ -168,7 +168,7 @@ module Rack
       extend self
 
       # TODO refactor
-      def match(media_types, format, options)
+      def match(media_types, format, options = {})
         selected = []
         accepted_types = media_types.map {|type| Regexp.escape(type).gsub(/\\\*/,'.*') }
         accepted_types.each do |at|
