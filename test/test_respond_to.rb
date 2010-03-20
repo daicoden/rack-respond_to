@@ -22,8 +22,8 @@ class TestRespondTo < MiniTest::Unit::TestCase
 
   test "media types accessor" do
     Rack::RespondTo.media_types = %w( application/xml )
-    assert_equal %W( application/xml #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.media_types
-    assert_equal %W( application/xml #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.mime_types  #alias
+    assert_equal %w( application/xml ), Rack::RespondTo.media_types
+    assert_equal %w( application/xml ), Rack::RespondTo.mime_types  #alias
   end
 
   test "selected media type reader" do
@@ -48,7 +48,7 @@ class TestRespondTo < MiniTest::Unit::TestCase
   test "explicitly specified media types take precedence over header's" do
     Rack::RespondTo.env = {'HTTP_ACCEPT' => 'text/html'}
     Rack::RespondTo.media_types = %w( text/plain )
-    assert_equal %W( text/plain #{Rack::RespondTo::AnyMimeType} ), Rack::RespondTo.media_types
+    assert_equal %w( text/plain ), Rack::RespondTo.media_types
   end
 
   ## respond_to

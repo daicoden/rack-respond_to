@@ -50,7 +50,6 @@ module Rack
       #   RespondTo::MediaType('htm')  #=> 'text/html'
       #
       def MediaType(format)
-        return format if format == AnyMimeType
         Rack::Mime.mime_type(format.sub(/^\./,'').insert(0,'.'))
       end
       alias :MimeType :MediaType
@@ -68,7 +67,7 @@ module Rack
       #   RespondTo.media_types        #=> ['application/xml', 'application/json', 'text/html']
       #
       def media_types
-        (@media_types || accept_list ) + [AnyMimeType]
+        @media_types || accept_list
       end
 
       attr_writer :media_types
@@ -158,8 +157,11 @@ module Rack
         format = Format.new
         yield format
         type, handler = Helpers.match(RespondTo.media_types, format)
-        RespondTo.selected_media_type = if type == AnyMimeType then options[:default_mime_type] || DefaultAnyTrueMimeType
-                                        else type; end
+        RespondTo.selected_media_type = type
+        unless type 
+          type, handler = Helpers.get_default(format)
+          RespondTo.selected_media_type = options[:default_mime_type] || DefaultAnyTrueMimeType if type
+        end
         handler.nil? ? nil : handler.call
       end
     end
@@ -180,6 +182,13 @@ module Rack
         end
         selected
       end
+
+      def get_default(format)
+        format.each do |ht, handler|
+          return [ht, handler] if ht == AnyMimeType
+        end
+        nil
+      end
     end
 
     # NOTE
@@ -187,8 +196,8 @@ module Rack
     # handler)
     class Format < Array #:nodoc:
       def method_missing(format, *args, &handler)
-        format = Rack::RespondTo::AnyMimeType if format == AnyFormatKeyWord
-        self << [RespondTo::MediaType(format.to_s), handler]
+        format = (format == AnyFormatKeyWord) ? AnyMimeType : RespondTo::MediaType(format.to_s)
+        self << [format, handler]
       end
     end
   end
