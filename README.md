@@ -16,10 +16,12 @@ Features
 
 Install
 -------
-`gem install rack-respond_to`
+
+    gem install rack-respond_to
 
 Example
 -------
+
     require 'rack'
     require 'rack/respond_to'
 
@@ -45,7 +47,7 @@ Example
 
     run App.new
 
-See the examples/simple_app.ru for an executable example.
+See `examples/simple_app.ru` for an executable example.
 
 Tips
 ----
@@ -56,7 +58,11 @@ into `HTTP_ACCEPT` and makes it the highest ranked).
 
   `gem install rack-abstract-format`
 
-See examples/recommended_use.ru for a complete example.
+See `examples/recommended_use.ru` for a complete example.
+
+Acknowledgement
+---------------
+* thanks to [daicoden][1] for `format.any` idea and initial patch
 
 Links
 -----
@@ -64,3 +70,6 @@ Links
 * code: http://github.com/mynyml/rack-respond_to
 * docs: http://docs.github.com/mynyml/rack-respond_to
 * bugs: http://github.com/mynyml/rack-respond_to/issues
+
+
+[1]: http://github.com/daicoden
