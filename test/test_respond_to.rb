@@ -209,4 +209,17 @@ class TestRespondTo < MiniTest::Unit::TestCase
     assert_equal 'success', body
     assert_equal 'application/json', Rack::RespondTo.selected_media_type
   end
+
+  test "proper mime type returend when using any format with several chained accepted types" do
+    Rack::RespondTo.media_types = ['text/html', 'application/xml']
+
+    body = App.respond_to do |format|
+      format.xml  { 'xml' }
+      format.rss  { 'rss' }
+      format.any  { 'unsusported format' }
+    end
+
+    assert_equal 'xml', body
+    assert_equal 'application/xml', Rack::RespondTo.selected_media_type
+  end
 end
